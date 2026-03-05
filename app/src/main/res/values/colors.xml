@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Palette based on the image -->
+    <color name="bg_gradient_start">#FFF9C4</color>
+    <color name="bg_gradient_end">#F48FB1</color>
+    <color name="login_title_color">#C2185B</color>
+    <color name="label_color">#AD1457</color>
+    <color name="input_field_bg">#FCE4EC</color>
+    <color name="button_login_bg">#D81B60</color>
+    <color name="link_color">#C2185B</color>
+</resources>
