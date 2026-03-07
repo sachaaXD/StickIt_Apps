@@ -19,16 +19,14 @@ class Addsticker : AppCompatActivity() {
     private var finalImagePath: String? = null
     private lateinit var ivPreview: ImageView
 
-    // Launcher sakti buat ambil gambar dan kompres langsung biar ga crash
     private val getImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             val imagePath = saveAndCompressImage(it)
             if (imagePath != null) {
                 finalImagePath = imagePath
-                // Tampilin gambar ke preview
                 val bitmap = BitmapFactory.decodeFile(imagePath)
                 ivPreview.setImageBitmap(bitmap)
-                ivPreview.scaleType = ImageView.ScaleType.FIT_CENTER // Biar muat semua ukuran
+                ivPreview.scaleType = ImageView.ScaleType.FIT_CENTER
             } else {
                 Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show()
             }
@@ -47,8 +45,10 @@ class Addsticker : AppCompatActivity() {
         val spinnerCategory = findViewById<Spinner>(R.id.spinnerCategory)
         val btnSave = findViewById<Button>(R.id.btnSaveSticker)
 
+        // 1. SETUP SPINNER DENGAN TEXT WARNA HITAM
         val categories = arrayOf("Meme", "Animal", "Cute", "Character", "Circus", "Universe", "Spooky")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
+        val adapter = ArrayAdapter(this, R.layout.spinner_item_black, categories)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerCategory.adapter = adapter
 
         cvImport.setOnClickListener {
@@ -76,21 +76,17 @@ class Addsticker : AppCompatActivity() {
         }
     }
 
-    // Fungsi buat copy dan kecilin ukuran gambar biar HP ga berat/crash
     private fun saveAndCompressImage(uri: Uri): String? {
         return try {
             val inputStream = contentResolver.openInputStream(uri)
-            val options = BitmapFactory.Options().apply { inSampleSize = 2 } // Kecilin resolusi jadi setengah
+            val options = BitmapFactory.Options().apply { inSampleSize = 2 }
             val bitmap = BitmapFactory.decodeStream(inputStream, null, options)
-            
             val file = File(filesDir, "sticker_${System.currentTimeMillis()}.jpg")
             val outputStream = FileOutputStream(file)
-            bitmap?.compress(Bitmap.CompressFormat.JPEG, 80, outputStream) // Kompres kualitas ke 80%
-            
+            bitmap?.compress(Bitmap.CompressFormat.JPEG, 80, outputStream)
             outputStream.flush()
             outputStream.close()
             inputStream?.close()
-            
             file.absolutePath
         } catch (e: Exception) {
             e.printStackTrace()
@@ -101,24 +97,19 @@ class Addsticker : AppCompatActivity() {
     private fun saveToInventory(name: String, price: String, category: String) {
         val sharedPref = getSharedPreferences("InventoryData", MODE_PRIVATE)
         val editor = sharedPref.edit()
-
         val count = sharedPref.getInt("INV_COUNT", 0)
         val newIndex = count + 1
-
         editor.putString("INV_NAME_$newIndex", name)
         editor.putString("INV_PRICE_$newIndex", "Rp $price")
         editor.putString("INV_CAT_$newIndex", category)
-        
         if (finalImagePath != null) {
             editor.putString("INV_IMAGE_URI_$newIndex", finalImagePath)
-            editor.putInt("INV_IMAGE_$newIndex", 0) // Pake path absolut
+            editor.putInt("INV_IMAGE_$newIndex", 0)
         } else {
             editor.putInt("INV_IMAGE_$newIndex", R.drawable.minion)
         }
-
         editor.putInt("INV_COUNT", newIndex)
         editor.apply()
-
         Toast.makeText(this, "Sticker '$name' saved successfully!", Toast.LENGTH_SHORT).show()
         finish()
     }

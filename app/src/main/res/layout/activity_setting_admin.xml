@@ -111,13 +111,31 @@
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp">
 
-                <TextView
-                    android:id="@+id/tvTotalStickers"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="Total Stickers in Storage: 16"
-                    android:textColor="#333333" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvTotalStickers"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:text="Total Stickers: 16"
+                        android:textColor="#333333" />
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+
+                    <TextView
+                        android:id="@+id/btnResetData"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="16dp"
+                        android:text="Reset Inventory to Default"
+                        android:textColor="#D32F2F"
+                        android:drawableEnd="@android:drawable/ic_menu_delete" />
+                </LinearLayout>
             </androidx.cardview.widget.CardView>
 
             <!-- Account Section -->

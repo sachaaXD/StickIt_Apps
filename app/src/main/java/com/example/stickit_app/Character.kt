@@ -1,13 +1,10 @@
 package com.example.stickit_app
 
-import android.content.Intent
-import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.view.View
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import java.io.File
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class character : AppCompatActivity() {
 
@@ -16,81 +13,71 @@ class character : AppCompatActivity() {
         setContentView(R.layout.activity_character)
 
         findViewById<ImageView>(R.id.btnBack)?.setOnClickListener { finish() }
-        syncCharacterData()
+        
+        // 1. Pastikan data awal Character ada jika memori kosong
+        initCharacterInventory()
+        // 2. Tampilkan daftar stiker
+        setupRecyclerView()
     }
 
     override fun onResume() {
         super.onResume()
-        syncCharacterData()
+        // Refresh data biar stiker baru dari Admin langsung muncul
+        setupRecyclerView()
     }
 
-    private fun syncCharacterData() {
+    private fun initCharacterInventory() {
         val sharedPref = getSharedPreferences("InventoryData", MODE_PRIVATE)
-        val count = sharedPref.getInt("INV_COUNT", 0)
-        
-        // Slot ID sesuai layout activity_character.xml yang lo punya
-        val buttonIds = arrayOf(R.id.tvB1, R.id.tvB2, R.id.tvB3, R.id.tvB4, R.id.tvB5, R.id.tvB6)
-        val nameIds = arrayOf(R.id.tvN1, R.id.tvN2, R.id.tvN3, R.id.tvN4, R.id.tvN5, R.id.tvN6)
-        // PERBAIKAN: Gunakan ID iv1 - iv6 sesuai XML lo
-        val imageIds = arrayOf(R.id.iv1, R.id.iv2, R.id.iv3, R.id.iv4, R.id.iv5, R.id.iv6)
+        if (!sharedPref.getBoolean("IS_CHAR_INIT", false)) {
+            val editor = sharedPref.edit()
+            val charDefaults = listOf(
+                StickerModel("Belle", "Rp 5.000", R.drawable.design_a_bedroom_and_we_ll_tell_you_which_disney_princess_you_re_most_like, "Character"),
+                StickerModel("Aang", "Rp 5.000", R.drawable._3_unpopular__, "Character"),
+                StickerModel("Venellope", "Rp 5.000", R.drawable.wreck_it_ralph_vanellope_von_schweetz, "Character"),
+                StickerModel("Minion", "Rp 5.000", R.drawable.minionsss, "Character"),
+                StickerModel("Olaf", "Rp 5.000", R.drawable.moviegoers_love__, "Character"),
+                StickerModel("Moana", "Rp 5.000", R.drawable.hey_maui__it_s_been_a_little_while__i_i_i_don_t_know_where_you_are_but__takes_a_deep_breath__i_could_really_use_your_help__, "Character")
+            )
+            
+            var currentCount = sharedPref.getInt("INV_COUNT", 0)
+            charDefaults.forEach { s ->
+                currentCount++
+                editor.putString("INV_NAME_$currentCount", s.name)
+                editor.putString("INV_PRICE_$currentCount", s.price)
+                editor.putInt("INV_IMAGE_$currentCount", s.image)
+                editor.putString("INV_CAT_$currentCount", s.category)
+            }
+            editor.putInt("INV_COUNT", currentCount)
+            editor.putBoolean("IS_CHAR_INIT", true)
+            editor.apply()
+        }
+    }
 
-        var matchIndex = 0
-        for (i in 1..count) {
+    private fun setupRecyclerView() {
+        val rvCharacter = findViewById<RecyclerView>(R.id.rvCharacterUser)
+        if (rvCharacter != null) {
+            rvCharacter.layoutManager = GridLayoutManager(this, 2)
+            val dataCharacter = loadCharacterFromInventory()
+            rvCharacter.adapter = StickerUserAdapter(dataCharacter)
+        }
+    }
+
+    private fun loadCharacterFromInventory(): List<StickerModel> {
+        val sharedPref = getSharedPreferences("InventoryData", MODE_PRIVATE)
+        val list = mutableListOf<StickerModel>()
+        val count = sharedPref.getInt("INV_COUNT", 0)
+
+        // LOOP TERBALIK: Biar stiker baru (kucong dll) muncul paling depan
+        for (i in count downTo 1) {
             val cat = sharedPref.getString("INV_CAT_$i", "")
-            if (cat == "Character" && matchIndex < buttonIds.size) {
+            // Pengecekan kategori dibuat lebih kuat (ignore case)
+            if (cat?.equals("Character", ignoreCase = true) == true) {
                 val name = sharedPref.getString("INV_NAME_$i", "") ?: ""
                 val price = sharedPref.getString("INV_PRICE_$i", "") ?: ""
                 val imageRes = sharedPref.getInt("INV_IMAGE_$i", 0)
-                val imagePath = sharedPref.getString("INV_IMAGE_URI_$i", null)
-
-                // 1. Update Gambar
-                try {
-                    val ivSticker = findViewById<ImageView>(imageIds[matchIndex])
-                    if (ivSticker != null) {
-                        if (!imagePath.isNullOrEmpty()) {
-                            val bitmap = BitmapFactory.decodeFile(imagePath)
-                            ivSticker.setImageBitmap(bitmap)
-                        } else if (imageRes != 0) {
-                            ivSticker.setImageResource(imageRes)
-                        }
-                    }
-                } catch (e: Exception) { }
-
-                // 2. Update Nama
-                try {
-                    val tvName = findViewById<TextView>(nameIds[matchIndex])
-                    if (tvName != null) tvName.text = name
-                } catch (e: Exception) { }
-
-                // 3. Logika Klik
-                val btnView = findViewById<TextView>(buttonIds[matchIndex])
-                btnView?.setOnClickListener {
-                    passDataToAbout(name, price, imageRes, imagePath)
-                }
-                
-                // Pastikan Layout (Card) kelihatan
-                (btnView?.parent?.parent as? View)?.visibility = View.VISIBLE
-                
-                matchIndex++
+                list.add(StickerModel(name, price, imageRes, "Character"))
             }
         }
-        
-        // Sembunyikan slot sisa yang kosong
-        for (i in matchIndex until buttonIds.size) {
-            findViewById<TextView>(buttonIds[i])?.parent?.parent?.let { (it as View).visibility = View.GONE }
-        }
-    }
-
-    private fun passDataToAbout(name: String, price: String, imageRes: Int, imagePath: String?) {
-        val intent = Intent(this, Aboutproduct::class.java).apply {
-            putExtra("PRODUCT_NAME", name)
-            putExtra("PRODUCT_PRICE", price)
-            if (!imagePath.isNullOrEmpty()) {
-                putExtra("PRODUCT_IMAGE_PATH", imagePath)
-            } else {
-                putExtra("PRODUCT_IMAGE", imageRes)
-            }
-        }
-        startActivity(intent)
+        return list
     }
 }
