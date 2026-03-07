@@ -16,6 +16,15 @@
         android:theme="@style/Theme.StickIt_App"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".astronomy"
+            android:exported="false" />
+        <activity
+            android:name=".settingAdmin"
+            android:exported="false" />
+        <activity
+            android:name=".historyUser"
+            android:exported="false" />
+        <activity
             android:name=".Editsticker"
             android:exported="false" />
         <activity

@@ -14,7 +14,7 @@ object ApiConfig {
             .addInterceptor(loggingInterceptor)
             .build()
 
-        // Sesuaikan IP dengan Wi-Fi (192.168.100.23) dan port 8000
+        // Ganti dengan IPv4 Address yang baru (hasil ipconfig di sekolah)
         val baseUrl = "http://192.168.100.23:8000/"
 
         return Retrofit.Builder()

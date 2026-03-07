@@ -266,11 +266,11 @@
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
                     app:cardCornerRadius="24dp"
-                    app:cardElevation="0dp">
+                    app:cardElevation="6dp"
+                    app:cardBackgroundColor="@android:color/white">
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_input_field"
                         android:padding="16dp">
                         <ImageView
                             android:id="@+id/ivProduct1"
@@ -323,11 +323,11 @@
                     android:layout_columnWeight="1"
                     android:layout_margin="8dp"
                     app:cardCornerRadius="24dp"
-                    app:cardElevation="0dp">
+                    app:cardElevation="6dp"
+                    app:cardBackgroundColor="@android:color/white">
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_input_field"
                         android:padding="16dp">
                         <ImageView
                             android:id="@+id/ivProduct2"

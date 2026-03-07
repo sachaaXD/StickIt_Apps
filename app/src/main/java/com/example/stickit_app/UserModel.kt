@@ -2,20 +2,20 @@ package com.example.stickit_app
 
 import com.google.gson.annotations.SerializedName
 
-// Login Models
+// Model untuk Login
 data class LoginRequest(
-    @SerializedName("name") val name: String, // Harus 'name' agar sinkron dengan login.php
+    @SerializedName("name") val name: String, // Kembali ke 'name' sesuai database
     @SerializedName("password") val password: String
 )
 
 data class LoginResponse(
     @SerializedName("status") val status: String,
     @SerializedName("message") val message: String,
-    @SerializedName("user_id") val userId: Int?, // Menangkap 'user_id' dari PHP
+    @SerializedName("user_id") val userId: Int?,
     @SerializedName("token") val token: String?
 )
 
-// Register Models
+// Model untuk Register
 data class RegisterRequest(
     @SerializedName("name") val name: String,
     @SerializedName("email") val email: String,

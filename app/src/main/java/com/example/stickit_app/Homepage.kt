@@ -15,13 +15,13 @@ class Homepage : AppCompatActivity() {
 
         val sessionManager = SessionManager(this)
 
-        // 1. Greeting (Ambil nama dari session)
+        // 1. Greeting
         val tvHello = findViewById<TextView>(R.id.tvHello)
         tvHello?.text = "Hello, ${sessionManager.getName()}!"
 
-        // 2. Navigasi History (Icon Clipboard di sebelah kanan profile)
+        // 2. Navigasi History User (SEKARANG KE historyUser)
         findViewById<ImageView>(R.id.imageView)?.setOnClickListener {
-            startActivity(Intent(this, History::class.java))
+            startActivity(Intent(this, historyUser::class.java))
         }
 
         // 3. Navigasi Kategori
@@ -32,29 +32,60 @@ class Homepage : AppCompatActivity() {
             startActivity(Intent(this, character::class.java))
         }
 
-        // 4. Tombol View More Rekomendasi (Ke AboutProduct)
-        findViewById<TextView>(R.id.btnViewSnoopy)?.setOnClickListener {
-            passDataToAbout("Snoopy", "7000", R.drawable.snoopy)
-        }
-        findViewById<TextView>(R.id.btnViewFinJake)?.setOnClickListener {
-            passDataToAbout("Fin & Jake", "7000", R.drawable.fin___jake_)
-        }
+        setupRecommendationFromInventory()
 
-        // 5. Navigasi Bottom Bar
+        // 4. Navigasi Bottom Bar
         val bottomNav = findViewById<LinearLayout>(R.id.bottomNavLayout)
-
-        // Klik Basket (Tengah) -> Ke Keranjang
         bottomNav?.getChildAt(1)?.setOnClickListener {
             startActivity(Intent(this, Keranjang::class.java))
         }
-
-        // Klik Setting (Paling Kanan) -> Ke Profile
         bottomNav?.getChildAt(2)?.setOnClickListener {
             startActivity(Intent(this, Profile::class.java))
         }
     }
 
-    // Fungsi bantu buat lempar data ke halaman detail
+    override fun onResume() {
+        super.onResume()
+        setupRecommendationFromInventory()
+    }
+
+    private fun setupRecommendationFromInventory() {
+        val sharedPref = getSharedPreferences("InventoryData", MODE_PRIVATE)
+        val count = sharedPref.getInt("INV_COUNT", 0)
+        
+        var snoopyName = "Snoopy Sticker"
+        var snoopyPrice = "Rp 7.000"
+        var snoopyImg = R.drawable.snoopy
+
+        var finName = "Fin & Jake"
+        var finPrice = "Rp 7.000"
+        var finImg = R.drawable.fin___jake_
+
+        for (i in 1..count) {
+            val nameInStore = sharedPref.getString("INV_NAME_$i", "")
+            if (nameInStore?.contains("Snoopy", true) == true) {
+                snoopyName = nameInStore
+                snoopyPrice = sharedPref.getString("INV_PRICE_$i", snoopyPrice) ?: snoopyPrice
+                snoopyImg = sharedPref.getInt("INV_IMAGE_$i", snoopyImg)
+            }
+            if (nameInStore?.contains("Fin", true) == true) {
+                finName = nameInStore
+                finPrice = sharedPref.getString("INV_PRICE_$i", finPrice) ?: finPrice
+                finImg = sharedPref.getInt("INV_IMAGE_$i", finImg)
+            }
+        }
+
+        findViewById<TextView>(R.id.tvProductName1)?.text = snoopyName
+        findViewById<TextView>(R.id.tvProductName2)?.text = finName
+
+        findViewById<TextView>(R.id.btnViewSnoopy)?.setOnClickListener {
+            passDataToAbout(snoopyName, snoopyPrice, snoopyImg)
+        }
+        findViewById<TextView>(R.id.btnViewFinJake)?.setOnClickListener {
+            passDataToAbout(finName, finPrice, finImg)
+        }
+    }
+
     private fun passDataToAbout(name: String, price: String, imageRes: Int) {
         val intent = Intent(this, Aboutproduct::class.java).apply {
             putExtra("PRODUCT_NAME", name)

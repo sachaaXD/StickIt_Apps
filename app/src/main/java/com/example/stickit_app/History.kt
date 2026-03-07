@@ -11,43 +11,35 @@ class History : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history)
 
-        // 1. Tombol Back
         val btnBack = findViewById<ImageButton>(R.id.btnBackHistory)
-        btnBack?.setOnClickListener {
-            finish()
-        }
+        btnBack?.setOnClickListener { finish() }
 
-        // 2. Setup RecyclerView
         val rvHistory = findViewById<RecyclerView>(R.id.rvHistory)
         rvHistory.layoutManager = LinearLayoutManager(this)
 
-        // 3. LOAD DATA DARI SHAREDPREF (Data yang beneran baru lo beli)
-        val dataRiwayat = loadHistoryFromSharedPref()
-
-        // Pasang Adapter ke RecyclerView
-        val adapter = HistoryAdapter(dataRiwayat)
-        rvHistory.adapter = adapter
+        // LOAD DATA SEMUA USER (Buat Admin)
+        val allHistory = loadAdminHistory()
+        rvHistory.adapter = HistoryAdapter(allHistory)
     }
 
-    private fun loadHistoryFromSharedPref(): List<HistoryModel> {
+    private fun loadAdminHistory(): List<HistoryModel> {
         val list = mutableListOf<HistoryModel>()
-        val sharedPref = getSharedPreferences("HistoryData", MODE_PRIVATE)
-        val count = sharedPref.getInt("HISTORY_COUNT", 0)
+        val sharedPref = getSharedPreferences("AdminHistory", MODE_PRIVATE)
+        val count = sharedPref.getInt("COUNT", 0)
 
-        // Baca dari data terbaru (reverse order biar yang baru dibeli paling atas)
+        // Baca data dari yang terbaru
         for (i in count downTo 1) {
-            val name = sharedPref.getString("H_NAME_$i", null) ?: continue
+            val name = sharedPref.getString("H_NAME_$i", "Sticker") ?: "Sticker"
             val price = sharedPref.getString("H_PRICE_$i", "Rp 0") ?: "Rp 0"
+            val user = sharedPref.getString("H_USER_$i", "Unknown User") ?: "Unknown User"
             
-            // Tambahin ke list
-            list.add(HistoryModel(name, "Success - Payment", "- $price", R.drawable.minion))
+            // TAMPILKAN NAMA PEMBELI SEBAGAI SUBTITLE
+            list.add(HistoryModel(name, "Buyer: $user", "- $price", R.drawable.minion))
         }
         
-        // Kalau kosong, kasih data dummy dikit biar gak sepi
         if (list.isEmpty()) {
-            list.add(HistoryModel("Belum ada transaksi", "Ayo belanja!", "Rp 0", R.drawable.minion))
+            list.add(HistoryModel("No Transactions", "Waiting for users to shop", "Rp 0", R.drawable.minion))
         }
-        
         return list
     }
 }

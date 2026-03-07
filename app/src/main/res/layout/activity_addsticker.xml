@@ -85,9 +85,8 @@
                         android:id="@+id/ivPreview"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:scaleType="centerInside"
-                        android:src="@android:drawable/ic_menu_gallery"
-                        app:tint="#999999" />
+                        android:scaleType="fitCenter"
+                        android:src="@android:drawable/ic_menu_gallery" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
