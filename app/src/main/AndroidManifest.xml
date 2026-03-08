@@ -31,9 +31,6 @@
             android:name=".Addsticker"
             android:exported="false" />
         <activity
-            android:name=".Ordersmanagemment"
-            android:exported="false" />
-        <activity
             android:name=".StickerManagemment"
             android:exported="false" />
         <activity

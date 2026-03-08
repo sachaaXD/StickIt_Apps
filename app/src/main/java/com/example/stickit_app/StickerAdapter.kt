@@ -13,9 +13,12 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import java.io.File
+import java.util.Locale
 
-class StickerAdapter(private val listStickers: MutableList<StickerModel>) :
+class StickerAdapter(private var listStickers: MutableList<StickerModel>) :
     RecyclerView.Adapter<StickerAdapter.ViewHolder>() {
+
+    private var listStickersFull: List<StickerModel> = ArrayList(listStickers)
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val ivImage: ImageView = view.findViewById(R.id.ivStickerImage)
@@ -69,7 +72,14 @@ class StickerAdapter(private val listStickers: MutableList<StickerModel>) :
 
         holder.btnDelete.setOnClickListener {
             deleteFromInventory(context, sticker.name)
+            // Remove from both lists to keep them in sync
+            val removedItem = listStickers[position]
             listStickers.removeAt(position)
+            
+            val fullList = listStickersFull.toMutableList()
+            fullList.remove(removedItem)
+            listStickersFull = fullList
+            
             notifyItemRemoved(position)
             notifyItemRangeChanged(position, listStickers.size)
             Toast.makeText(context, "${sticker.name} deleted!", Toast.LENGTH_SHORT).show()
@@ -105,4 +115,21 @@ class StickerAdapter(private val listStickers: MutableList<StickerModel>) :
     }
 
     override fun getItemCount(): Int = listStickers.size
+
+    fun filter(text: String) {
+        val filterPattern = text.lowercase(Locale.ROOT).trim()
+        listStickers.clear()
+        
+        if (filterPattern.isEmpty()) {
+            listStickers.addAll(listStickersFull)
+        } else {
+            for (item in listStickersFull) {
+                if (item.name.lowercase(Locale.ROOT).contains(filterPattern) || 
+                    item.category.lowercase(Locale.ROOT).contains(filterPattern)) {
+                    listStickers.add(item)
+                }
+            }
+        }
+        notifyDataSetChanged()
+    }
 }
